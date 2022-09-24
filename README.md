@@ -10,3 +10,13 @@ Allow you to see/edit binary numbers in more convenient way: black & white.
 
 ver 0.1 (alpha)
 
+## To build installer:
+
+```sh
+npm run VSIX
+```
+if having problem of `vsce not found`, run:
+```sh
+sudo npm install -g vsce
+```
+

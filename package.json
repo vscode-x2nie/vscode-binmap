@@ -2,7 +2,7 @@
 	"name": "visual-binarynumber-map",
 	"description": "Visualize Binary Number as Bitmap",
 	"version": "0.0.1",
-	"publisher": "vscode-samples",
+	"publisher": "vscode-x2nie",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.32.0"
@@ -33,6 +33,7 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
+		"VSIX": "vsce package",
 		"lint": "eslint . --ext .ts,.tsx",
 		"watch": "tsc -watch -p ./"
 	},
