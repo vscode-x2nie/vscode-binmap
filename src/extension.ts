@@ -27,12 +27,18 @@ export function activate(context: vscode.ExtensionContext) {
 			backgroundColor: 'transparent',
 		},
 	}
-	// create a decorator type that we use to decorate small numbers
-	const preBitDecorationType = vscode.window.createTextEditorDecorationType({
-		...BothBitStyle,
+	const fade = {
 		backgroundColor: 'default',
 		color: '#666',
 		borderColor: 'transparent',
+	}
+	// create a decorator type that we use to decorate small numbers
+	const preBitDecorationType = vscode.window.createTextEditorDecorationType({
+		...BothBitStyle,
+		...fade
+	})
+	const tailBitDecorationType = vscode.window.createTextEditorDecorationType({
+		...fade
 	})
 	const bitOneDecorationType = vscode.window.createTextEditorDecorationType({
 		...BothBitStyle,
@@ -45,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// letterSpacing:'32px',
 		light: {
 			// this color will be used in light color themes
+			color: '#aaa',
 			// borderColor: 'darkblue'
 		},
 		dark: {
@@ -59,9 +66,17 @@ export function activate(context: vscode.ExtensionContext) {
 		// cursor: 'crosshair',
 		color: '#444',
 		backgroundColor: '#00000066',
-		// borderColor: 'transparent',
-
 		// use a themable color. See package.json for the declaration and default values.
+		light: {
+			color: '#44444466',
+			// this color will be used in light color themes
+			// borderColor: 'darkblue'
+		},
+		dark: {
+			// this color will be used in dark color themes
+			// borderColor: 'lightblue'
+		}
+
 		// backgroundColor: { id: 'myextension.largeNumberBackground' }
 		
 		// borderWidth: '7px'	
@@ -79,18 +94,20 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!activeEditor) {
 			return;
 		}
-		const regEx = /\b0[x]*[bB]+([01]+)\b/g;
+		const regEx = /\b0[x]*[bB]+([01]+)(,|\b)/g;
 		const regBin = /([0]+|[1]+)/g;
 		const doc = activeEditor.document;
 		const text = activeEditor.document.getText();
 		const preNumbers: vscode.DecorationOptions[] = [];
 		const oneNumbers: vscode.DecorationOptions[] = [];
 		const zeroNumbers: vscode.DecorationOptions[] = [];
+		const tailNumbers: vscode.DecorationOptions[] = [];
 		let word;
 		while ((word = regEx.exec(text))) {
 			const wholeWord = word[0];	//? 0b1100 | b1100 
 			const binWord = word[1];	//?   1100
-			const preWide = ( wholeWord.length - binWord.length ); // 1
+			const tail = word[2];		//?       `,`
+			const preWide = wholeWord.length - (binWord.length + tail.length); // 1
 			const firstBin = word.index + preWide;
 
 			//pre
@@ -99,6 +116,15 @@ export function activate(context: vscode.ExtensionContext) {
 			const decoration0 = { range: new vscode.Range(startPos0, endPos0), hoverMessage: 'Number **' + word[0] + '**' };
 			preNumbers.push(decoration0);
 
+			//post
+			if(word[2]){ // trailing comma
+				const startPos = startPos0.translate(0, preWide + word[1].length);
+				const endPos = startPos0.translate(0, word[0].length+1)
+				const decorationn = { range: new  vscode.Range(startPos, endPos)};
+				tailNumbers.push(decorationn);
+			}
+
+			//binaries
 			[...binWord].forEach((bit, i)=>{
 				const startPos = startPos0.translate(0, preWide + i);
 				const endPos   = startPos0.translate(0, preWide + i + 1);
@@ -110,22 +136,11 @@ export function activate(context: vscode.ExtensionContext) {
 					zeroNumbers.push(decoration);
 				}
 
-			})
-			
-			// let bit;
-			// while ((bit = regBin.exec(binWord))) {
-			// 	const startPos = activeEditor.document.positionAt(firstBin + bit.index);
-			// 	const endPos = activeEditor.document.positionAt(firstBin + bit.index + bit[0].length);
+			});
 
-			// 	const decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: 'Number **' + binWord + '**' };
-			// 	if (bit[0].startsWith('1')) {
-			// 		oneNumbers.push(decoration);
-			// 	} else {
-			// 		zeroNumbers.push(decoration);
-			// 	}
-			// }
 		}
 		activeEditor.setDecorations(preBitDecorationType, preNumbers);
+		activeEditor.setDecorations(tailBitDecorationType, tailNumbers);
 		activeEditor.setDecorations(bitOneDecorationType, oneNumbers);
 		activeEditor.setDecorations(bitZeroDecorationType, zeroNumbers);
 	}
