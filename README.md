@@ -1,6 +1,12 @@
 # Binary numbers => Bitsmap
 
-Allow you to preview binary numbers array in more contrast way: black & white.
+Allow you to see/edit binary numbers in more convenient way: black & white.
 
-![sample](preview.png)
+## before:
+![before](preview-before.png)
+## after:
+![In Action](preview.png)
+![In Action light-theme](preview-in-light-theme.png)
+
+ver 0.1 (alpha)
 
